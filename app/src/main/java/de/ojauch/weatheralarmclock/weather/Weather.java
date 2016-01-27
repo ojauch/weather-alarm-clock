@@ -8,7 +8,7 @@ class Weather {
     private City city;
     private float temperature;
     private int humidity;
-    private int pressure;
+    private float pressure;
     private Wind wind;
     private int clouds;
     private int visibility;
@@ -54,11 +54,11 @@ class Weather {
         this.humidity = humidity;
     }
 
-    public int getPressure() {
+    public float getPressure() {
         return pressure;
     }
 
-    public void setPressure(int pressure) {
+    public void setPressure(float pressure) {
         this.pressure = pressure;
     }
 
@@ -72,10 +72,6 @@ class Weather {
 
     public Precipitation getPrecipitation() {
         return precipitation;
-    }
-
-    public void setPrecipitation(int value, Precipitation.PrecipitationMode mode) {
-        this.precipitation = new Precipitation(value, mode);
     }
 
     public void setPrecipitation(Precipitation precipitation) {

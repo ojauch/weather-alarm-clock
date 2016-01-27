@@ -12,10 +12,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 
-import de.ojauch.weatheralarmclock.weather.Weather;
-
 /**
  * Gets the current weather from Open Weather Map
+ *
  * @author Oskar Jauch
  */
 public class WeatherApi {
@@ -24,10 +23,9 @@ public class WeatherApi {
     private static final String FORMAT = "&mode=xml";
     private static final String UNITS = "&units=metric";
     private static final String ns = null;
+    private static final String LOG_TAG = "weather_api";
 
     private Weather current;
-
-    private boolean rain = false;
 
     public WeatherApi() {
     }
@@ -113,44 +111,52 @@ public class WeatherApi {
         return current;
     }
 
-    private City readCity(XmlPullParser parser) throws IOException, XmlPullParserException {
+    private City readCity(XmlPullParser parser) throws IOException, XmlPullParserException, NumberFormatException {
         City city = new City();
         parser.require(XmlPullParser.START_TAG, ns, "city");
 
-        // get id
-        String strId = parser.getAttributeValue(ns, "id");
-        int id = Integer.getInteger(strId);
-        city.setCityId(id);
+        if (parser.getName().equals("city")) {
+            // get id
+            String strId = parser.getAttributeValue(ns, "id");
+            Log.d("weather_api", strId);
+            int id = Integer.parseInt(strId.trim());
+            city.setCityId(id);
 
-        // get name
-        String name = parser.getAttributeValue(ns, "name");
-        city.setCityName(name);
+            // get name
+            String name = parser.getAttributeValue(ns, "name");
+            city.setCityName(name);
+        }
 
-        // get coordinates
-        parser.nextTag();
-        parser.require(XmlPullParser.START_TAG, ns, "coord");
-        String strLon = parser.getAttributeValue(ns, "lon");
-        String strLat = parser.getAttributeValue(ns, "lat");
-        double lon = Double.valueOf(strLon);
-        double lat = Double.valueOf(strLat);
-        city.setCoord_lon(lon);
-        city.setCoord_lat(lat);
+        while (!parser.getName().equals("city")) {
+            String name = parser.getName();
 
-        // get country
-        parser.nextTag();
-        parser.require(XmlPullParser.START_TAG, ns, "country");
-        String country = parser.getAttributeValue(ns, "country");
-        city.setCountry(country);
-
-        // get sunrise/sunset
-        parser.nextTag();
-        parser.require(XmlPullParser.START_TAG, ns, "sun");
-        String strRise = parser.getAttributeValue(ns, "rise");
-        Date rise = new Date(strRise);
-        city.setSunrise(rise);
-        String strSet = parser.getAttributeValue(ns, "set");
-        Date set = new Date(strSet);
-        city.setSunset(set);
+            switch (name) {
+                case "coord":
+                    parser.require(XmlPullParser.START_TAG, ns, "coord");
+                    String strLon = parser.getAttributeValue(ns, "lon");
+                    String strLat = parser.getAttributeValue(ns, "lat");
+                    double lon = Double.valueOf(strLon);
+                    double lat = Double.valueOf(strLat);
+                    city.setCoord_lon(lon);
+                    city.setCoord_lat(lat);
+                    break;
+                case "country":
+                    parser.require(XmlPullParser.START_TAG, ns, "country");
+                    String country = parser.getAttributeValue(ns, "country");
+                    city.setCountry(country);
+                    break;
+                case "sun":
+                    parser.require(XmlPullParser.START_TAG, ns, "sun");
+                    String strRise = parser.getAttributeValue(ns, "rise");
+                    Date rise = new Date(strRise);
+                    city.setSunrise(rise);
+                    String strSet = parser.getAttributeValue(ns, "set");
+                    Date set = new Date(strSet);
+                    city.setSunset(set);
+                    break;
+            }
+            parser.nextTag();
+        }
 
         return city;
     }
@@ -163,14 +169,15 @@ public class WeatherApi {
         // get mode
         String mode = parser.getAttributeValue(ns, "mode");
         parser.nextTag();
-        if (mode.equals("no")) {
-            Log.d("weather_api", "not raining " + mode);
-            precipitation.setMode(Precipitation.PrecipitationMode.NO);
-        } else if (mode.equals("rain")) {
-            Log.d("weather_api", "raining " + mode);
-            precipitation.setMode(Precipitation.PrecipitationMode.RAIN);
-        } else {
-            precipitation.setMode(Precipitation.PrecipitationMode.SNOW);
+        switch (mode) {
+            case "no":
+                precipitation.setMode(Precipitation.PrecipitationMode.NO);
+                break;
+            case "rain":
+                precipitation.setMode(Precipitation.PrecipitationMode.RAIN);
+                break;
+            default:
+                precipitation.setMode(Precipitation.PrecipitationMode.SNOW);
         }
 
         // get value if there is precipitation
@@ -199,10 +206,10 @@ public class WeatherApi {
         return humidity;
     }
 
-    private int readPressure(XmlPullParser parser) throws IOException, XmlPullParserException {
+    private float readPressure(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, ns, "pressure");
         String strPressure = parser.getAttributeValue(ns, "value");
-        int pressure = Integer.valueOf(strPressure);
+        float pressure = Float.valueOf(strPressure);
         parser.nextTag();
         return pressure;
     }
@@ -212,32 +219,40 @@ public class WeatherApi {
         parser.require(XmlPullParser.START_TAG, ns, "wind");
         parser.nextTag();
 
-        // get wind speed
-        parser.require(XmlPullParser.START_TAG, ns, "speed");
-        String strSpeed = parser.getAttributeValue(ns, "value");
-        float speed = Float.valueOf(strSpeed);
-        wind.setSpeed(speed);
+        while (!parser.getName().equals("wind")) {
+            String name = parser.getName();
 
-        // get wind direction
-        parser.nextTag();
-        String code = parser.getAttributeValue(ns, "code");
-        Wind.Direction direction = null;
-        switch (code) {
-            case "N":
-                direction = Wind.Direction.NORTH;
-                break;
-            case "E":
-                direction = Wind.Direction.EAST;
-                break;
-            case "S":
-                direction = Wind.Direction.SOUTH;
-                break;
-            case "W":
-                direction = Wind.Direction.WEST;
-                break;
+            switch (name) {
+                case "speed":
+                    parser.require(XmlPullParser.START_TAG, ns, "speed");
+                    String strSpeed = parser.getAttributeValue(ns, "value");
+                    float speed = Float.valueOf(strSpeed);
+                    wind.setSpeed(speed);
+                    break;
+                case "direction":
+                    String code = parser.getAttributeValue(ns, "code");
+                    Wind.Direction direction = null;
+                    Log.d(LOG_TAG, code);
+                    switch (code) {
+                        case "N":
+                            direction = Wind.Direction.NORTH;
+                            break;
+                        case "E":
+                            direction = Wind.Direction.EAST;
+                            break;
+                        case "S":
+                            direction = Wind.Direction.SOUTH;
+                            break;
+                        case "W":
+                            direction = Wind.Direction.WEST;
+                            break;
+                        // TODO: add other cases
+                    }
+                    wind.setDirection(direction);
+                    break;
+            }
+            parser.nextTag();
         }
-        wind.setDirection(direction);
-        parser.nextTag();
         return wind;
     }
 
@@ -254,11 +269,27 @@ public class WeatherApi {
         loadXmlFromNetwork(url);
     }
 
+    /**
+     * Check if it's raining in a specific city
+     *
+     * @param city that should be checked
+     * @return true if it's raining
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
     public boolean isRaining(String city) throws IOException, XmlPullParserException {
         refreshData(city);
         return !current.getPrecipitation().getMode().equals(Precipitation.PrecipitationMode.NO);
     }
 
+    /**
+     * Check if it's very cold in a specific city
+     *
+     * @param city that should be checked
+     * @return true if the temperature is lower than 2 degrees celsius
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
     public boolean isFreezing(String city) throws IOException, XmlPullParserException {
         refreshData(city);
         return (current.getTemperature() < 2);
