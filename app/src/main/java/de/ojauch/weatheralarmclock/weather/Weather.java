@@ -4,7 +4,7 @@ package de.ojauch.weatheralarmclock.weather;
  * Class to represent weather data from OpenWeatherMap
  * @author Oskar Jauch
  */
-class Weather {
+public class Weather {
     private City city;
     private float temperature;
     private int humidity;
