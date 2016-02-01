@@ -1,5 +1,6 @@
 package de.ojauch.weatheralarmclock.weather;
 
+import android.location.Location;
 import android.util.Log;
 import android.util.Xml;
 
@@ -18,7 +19,10 @@ import java.util.Date;
  * @author Oskar Jauch
  */
 public class WeatherApi {
-    private static final String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?q=";
+    private static final String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?";
+    private static final String CITY_QUERY = "q=";
+    private static final String LAT = "lat=";
+    private static final String LON = "&lon=";
     private static final String API_KEY = "24d7fb2485706e8b6fd1a7d53cdb6589";
     private static final String FORMAT = "&mode=xml";
     private static final String UNITS = "&units=metric";
@@ -96,9 +100,9 @@ public class WeatherApi {
                 case "pressure":
                     current.setPressure(readPressure(parser));
                     break;
-                case "wind":
-                    current.setWind(readWind(parser));
-                    break;
+                //case "wind":
+                //    current.setWind(readWind(parser));
+                //    break;
                 case "clouds":
                     current.setClouds(readClouds(parser));
                     break;
@@ -183,7 +187,7 @@ public class WeatherApi {
         // get value if there is precipitation
         if (precipitation.getMode() != Precipitation.PrecipitationMode.NO) {
             String strValue = parser.getAttributeValue(ns, "value");
-            int value = Integer.getInteger(strValue);
+            int value = Integer.parseInt(strValue);
             precipitation.setValue(value);
         }
 
@@ -259,13 +263,19 @@ public class WeatherApi {
     private int readClouds(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, ns, "clouds");
         String strValue = parser.getAttributeValue(ns, "value");
-        int value = Integer.getInteger(strValue);
+        int value = Integer.parseInt(strValue);
         parser.nextTag();
         return value;
     }
 
     private void refreshData(String city) throws IOException, XmlPullParserException {
-        String url = BASE_URL + city + "&APPID=" + API_KEY + FORMAT + UNITS;
+        String url = BASE_URL + CITY_QUERY + city + "&APPID=" + API_KEY + FORMAT + UNITS;
+        loadXmlFromNetwork(url);
+    }
+
+    private void refreshData(Location location) throws IOException, XmlPullParserException {
+        String url = BASE_URL + LAT + location.getLatitude() + LON + location.getLongitude() +
+                "&APPID=" + API_KEY + FORMAT + UNITS;
         loadXmlFromNetwork(url);
     }
 
@@ -292,6 +302,16 @@ public class WeatherApi {
      */
     public boolean isFreezing(String city) throws IOException, XmlPullParserException {
         refreshData(city);
+        return (current.getTemperature() < 2);
+    }
+
+    public boolean isRaining(Location location) throws IOException, XmlPullParserException {
+        refreshData(location);
+        return !current.getPrecipitation().getMode().equals(Precipitation.PrecipitationMode.NO);
+    }
+
+    public boolean isFreezing(Location location) throws IOException, XmlPullParserException {
+        refreshData(location);
         return (current.getTemperature() < 2);
     }
 }

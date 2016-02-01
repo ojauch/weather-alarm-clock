@@ -88,10 +88,14 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.MINUTE, minute - 1);
 
         String city = sharedPref.getString(SettingsActivity.KEY_PREF_CITY, "");
-        Log.d(LOG_TAG, city);
+        Log.d(LOG_TAG, "city: " + city);
+
+        boolean locationActivated = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DEVICE_LOCATION, false);
+        Log.d(LOG_TAG, "device location activated: " + String.valueOf(locationActivated));
 
         Intent i = new Intent(MainActivity.this, AlarmActivity.class);
         i.putExtra(AlarmActivity.EXTRA_CITY, city);
+        i.putExtra(AlarmActivity.EXTRA_LOCATION_ACTIVATED, locationActivated);
         i.putExtra(AlarmActivity.EXTRA_RAIN, rain);
         i.putExtra(AlarmActivity.EXTRA_FREEZING, freezing);
         PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, i, PendingIntent.FLAG_ONE_SHOT);

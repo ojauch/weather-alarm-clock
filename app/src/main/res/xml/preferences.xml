@@ -7,4 +7,9 @@
         android:summary="@string/pref_city_summary"
         android:defaultValue="Karlsruhe"
         />
+    <CheckBoxPreference
+        android:key="pref_device_location"
+        android:title="@string/pref_device_location"
+        android:summary="@string/pref_device_location_summary"
+        android:defaultValue="false" />
 </PreferenceScreen>
