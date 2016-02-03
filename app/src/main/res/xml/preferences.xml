@@ -5,6 +5,11 @@
         android:title="@string/pref_city"
         android:dialogTitle="@string/pref_city"
         android:summary="@string/pref_city_summary"
-        android:defaultValue="Karlsruhe"
-        />
+        android:defaultValue="Karlsruhe" />
+    <EditTextPreference android:inputType="number"
+        android:key="pref_time_shift"
+        android:title="@string/pref_time_shift"
+        android:dialogTitle="@string/pref_time_shift"
+        android:summary="@string/pref_time_shift_summary"
+        android:defaultValue="15" />
 </PreferenceScreen>

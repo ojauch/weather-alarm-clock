@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox checkBoxRain;
     private CheckBox checkBoxFreezing;
     private SharedPreferences sharedPref;
+    private int timeShift;
 
     public static final String LOG_TAG = "weather-alarm-clock";
 
@@ -39,8 +38,17 @@ public class MainActivity extends AppCompatActivity {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         tp = (TimePicker) findViewById(R.id.timePicker);
+        tp.setIs24HourView(true);
         checkBoxRain = (CheckBox) findViewById(R.id.checkBoxRain);
-        checkBoxFreezing = (CheckBox) findViewById(R.id.checkBoxFreezing);
+        checkBoxFreezing = (CheckBox) findViewById(R.id.checkBoxFrost);
+
+        // get time shift value
+        try {
+            timeShift = Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_TIME_SHIFT, "15"));
+        } catch (NumberFormatException e) {
+            Log.d(LOG_TAG, "Error parsing time shift preference value");
+            timeShift = 15;
+        }
     }
 
     @Override
@@ -75,8 +83,20 @@ public class MainActivity extends AppCompatActivity {
         boolean freezing = checkBoxFreezing.isChecked();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute - 1);
+
+        int currentDay = calendar.get(Calendar.DAY_OF_YEAR);
+
+        if (calendar.get(Calendar.HOUR_OF_DAY) >= hour - (timeShift / 60) &&
+                calendar.get(Calendar.MINUTE) > minute) {
+            Log.d(LOG_TAG, "happens on the next day");
+            if (currentDay < 365) {
+                calendar.set(Calendar.DAY_OF_YEAR, currentDay + 1);
+            } else {
+                calendar.set(Calendar.DAY_OF_YEAR, 1);
+            }
+        }
+        calendar.set(Calendar.HOUR_OF_DAY, hour - (timeShift / 60));
+        calendar.set(Calendar.MINUTE, minute - (timeShift % 60) - 1);
 
         String city = sharedPref.getString(SettingsActivity.KEY_PREF_CITY, "");
         Log.d(LOG_TAG, city);
@@ -85,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         i.putExtra(AlarmActivity.EXTRA_CITY, city);
         i.putExtra(AlarmActivity.EXTRA_RAIN, rain);
         i.putExtra(AlarmActivity.EXTRA_FREEZING, freezing);
+        i.putExtra(AlarmActivity.EXTRA_TIME_SHIFT, timeShift);
         PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, i, PendingIntent.FLAG_ONE_SHOT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);

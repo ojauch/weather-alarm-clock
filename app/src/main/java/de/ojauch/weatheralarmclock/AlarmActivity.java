@@ -20,10 +20,12 @@ public class AlarmActivity extends AppCompatActivity {
     public static final String EXTRA_CITY = "de.ojauch.weatheralarmclock.city";
     public static final String EXTRA_RAIN = "de.ojauch.weatheralarmclock.rain";
     public static final String EXTRA_FREEZING = "de.ojauch.weatheralarmclock.freezing";
+    public static final String EXTRA_TIME_SHIFT = "de.ojauch.weatheralarmclock.time_shift";
 
     private WeatherApi weatherApi;
     private boolean rain;
     private boolean freezing;
+    private int timeShift;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,7 @@ public class AlarmActivity extends AppCompatActivity {
         String city = intent.getStringExtra(EXTRA_CITY);
         rain = intent.getBooleanExtra(EXTRA_RAIN, true);
         freezing = intent.getBooleanExtra(EXTRA_FREEZING, true);
+        timeShift = intent.getIntExtra(EXTRA_TIME_SHIFT, 15);
 
         weatherApi = new WeatherApi();
         new CheckRainTask().execute(city);
@@ -44,7 +47,7 @@ public class AlarmActivity extends AppCompatActivity {
             try {
                 if (rain && !weatherApi.isRaining(cities[0]))
                     return false;
-                if (freezing && !weatherApi.isFreezing(cities[0]))
+                if (freezing && !weatherApi.isFrost(cities[0]))
                     return false;
                 return true;
             } catch (IOException e) {
@@ -57,8 +60,8 @@ public class AlarmActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Boolean isRaining) {
-            if (isRaining) {
+        protected void onPostExecute(Boolean ringEarlier) {
+            if (ringEarlier) {
                 Calendar calendar = Calendar.getInstance();
                 int hours = calendar.getTime().getHours();
                 int minutes = calendar.getTime().getMinutes();
@@ -67,12 +70,19 @@ public class AlarmActivity extends AppCompatActivity {
                 intent.putExtra(AlarmClock.EXTRA_HOUR, hours);
                 intent.putExtra(AlarmClock.EXTRA_MINUTES, minutes + 1);
 
+                Log.d(MainActivity.LOG_TAG, "ring earlier");
                 startActivity(intent);
-                Toast toast = Toast.makeText(getApplicationContext(), "set alarm", Toast.LENGTH_LONG);
-                toast.show();
             } else {
-                Toast toast = Toast.makeText(getApplicationContext(), "don't set alarm", Toast.LENGTH_LONG);
-                toast.show();
+                Calendar calendar = Calendar.getInstance();
+                int hours = calendar.getTime().getHours();
+                int minutes = calendar.getTime().getMinutes();
+
+                Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+                intent.putExtra(AlarmClock.EXTRA_HOUR, hours + (timeShift / 60));
+                intent.putExtra(AlarmClock.EXTRA_MINUTES, minutes + (timeShift % 60));
+
+                Log.d(MainActivity.LOG_TAG, "ring at normal time");
+                startActivity(intent);
             }
             System.exit(0);
         }

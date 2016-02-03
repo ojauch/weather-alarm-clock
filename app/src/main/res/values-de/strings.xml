@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Weather Alarm Clock</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="city_hint">Stadt</string>
+    <string name="freezing">Frost</string>
+    <string name="pref_city">Heimatstadt</string>
+    <string name="pref_city_summary">Stadt in der Sie leben</string>
+    <string name="pref_device_location">GPS benutzen</string>
+    <string name="pref_device_location_summary">GPS Standort des Geräts benutzen</string>
+    <string name="rain">Regen</string>
+    <string name="set_alarm">Wecker hinzufügen</string>
+    <string name="title_activity_settings">Einstellungen</string>
+</resources>

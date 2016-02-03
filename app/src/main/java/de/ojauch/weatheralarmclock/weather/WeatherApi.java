@@ -290,7 +290,7 @@ public class WeatherApi {
      * @throws IOException
      * @throws XmlPullParserException
      */
-    public boolean isFreezing(String city) throws IOException, XmlPullParserException {
+    public boolean isFrost(String city) throws IOException, XmlPullParserException {
         refreshData(city);
         return (current.getTemperature() < 2);
     }

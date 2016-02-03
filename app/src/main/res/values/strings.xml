@@ -6,8 +6,13 @@
     <string name="city_hint">city</string>
     <string name="set_alarm">Set Alarm</string>
 
+    <string name="rain">Rain</string>
+    <string name="frost">Frost</string>
+
     <string name="pref_city">Default city</string>
     <string name="pref_city_summary">Place where you live</string>
     <string name="pref_device_location">Device location</string>
     <string name="pref_device_location_summary">Use device location to get weather data</string>
+    <string name="pref_time_shift">Time shift</string>
+    <string name="pref_time_shift_summary">Minutes you want to wake up earlier</string>
 </resources>
