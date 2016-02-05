@@ -1,5 +1,6 @@
 package de.ojauch.weatheralarmclock;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
@@ -16,6 +17,8 @@ import java.util.Calendar;
 public class TimePickerFragment extends DialogFragment
                     implements TimePickerDialog.OnTimeSetListener {
 
+    TimePickerDialog.OnTimeSetListener mCallback;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the current time as the default values for the picker
@@ -27,8 +30,20 @@ public class TimePickerFragment extends DialogFragment
                 DateFormat.is24HourFormat(getActivity()));
     }
 
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
 
+        try {
+            mCallback = (TimePickerDialog.OnTimeSetListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnTimeChosenListener.");
+        }
+    }
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        mCallback.onTimeSet(view, hourOfDay, minute);
     }
 
 }

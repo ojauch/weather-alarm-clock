@@ -2,10 +2,12 @@ package de.ojauch.weatheralarmclock;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,12 +20,14 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 
     private TimePicker tp;
     private CheckBox checkBoxRain;
     private CheckBox checkBoxFreezing;
+
     private SharedPreferences sharedPref;
+
     private int timeShift;
 
     public static final String LOG_TAG = "weather-alarm-clock";
@@ -37,10 +41,17 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        tp = (TimePicker) findViewById(R.id.timePicker);
-        tp.setIs24HourView(true);
-        checkBoxRain = (CheckBox) findViewById(R.id.checkBoxRain);
-        checkBoxFreezing = (CheckBox) findViewById(R.id.checkBoxFrost);
+        FloatingActionButton fab_add = (FloatingActionButton) findViewById(R.id.fab_add_alarm);
+        fab_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TimePickerFragment tp = new TimePickerFragment();
+                tp.show(getFragmentManager(), "tp_alarm_fragment");
+            }
+        });
+
+        //checkBoxRain = (CheckBox) findViewById(R.id.checkBoxRain);
+        //checkBoxFreezing = (CheckBox) findViewById(R.id.checkBoxFrost);
 
         // get time shift value
         try {
@@ -76,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setAlarm(View v) {
+    /*public void setAlarm(View v) {
         int hour = tp.getCurrentHour();
         int minute = tp.getCurrentMinute();
         boolean rain = checkBoxRain.isChecked();
@@ -112,6 +123,51 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 
         String notification = "alarm set: " + hour + ":" + minute;
+
+        Toast toast = Toast.makeText(getApplicationContext(), notification, Toast.LENGTH_LONG);
+        toast.show();
+    }*/
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        Log.d(LOG_TAG, "time set to: " + hourOfDay + ":" + minute);
+        //boolean rain = checkBoxRain.isChecked();
+        //boolean freezing = checkBoxFreezing.isChecked();
+
+        // TODO: add user control to control conditions
+        boolean rain = true;
+        boolean frost = true;
+
+        Calendar calendar = Calendar.getInstance();
+
+        int currentDay = calendar.get(Calendar.DAY_OF_YEAR);
+
+        if (calendar.get(Calendar.HOUR_OF_DAY) >= hourOfDay - (timeShift / 60) &&
+                calendar.get(Calendar.MINUTE) > minute) {
+            Log.d(LOG_TAG, "happens on the next day");
+            if (currentDay < 365) {
+                calendar.set(Calendar.DAY_OF_YEAR, currentDay + 1);
+            } else {
+                calendar.set(Calendar.DAY_OF_YEAR, 1);
+            }
+        }
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay - (timeShift / 60));
+        calendar.set(Calendar.MINUTE, minute - (timeShift % 60) - 1);
+
+        String city = sharedPref.getString(SettingsActivity.KEY_PREF_CITY, "");
+        Log.d(LOG_TAG, city);
+
+        Intent i = new Intent(MainActivity.this, AlarmActivity.class);
+        i.putExtra(AlarmActivity.EXTRA_CITY, city);
+        i.putExtra(AlarmActivity.EXTRA_RAIN, rain);
+        i.putExtra(AlarmActivity.EXTRA_FREEZING, frost);
+        i.putExtra(AlarmActivity.EXTRA_TIME_SHIFT, timeShift);
+        PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, i, PendingIntent.FLAG_ONE_SHOT);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+
+        String notification = "alarm set: " + hourOfDay + ":" + minute;
 
         Toast toast = Toast.makeText(getApplicationContext(), notification, Toast.LENGTH_LONG);
         toast.show();
