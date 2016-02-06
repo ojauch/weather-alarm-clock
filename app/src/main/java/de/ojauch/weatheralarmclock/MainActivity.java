@@ -11,9 +11,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -22,6 +22,7 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
 
+    public static final String LOG_TAG = "weather-alarm-clock";
     private TimePicker tp;
     private CheckBox checkBoxRain;
     private CheckBox checkBoxFreezing;
@@ -29,8 +30,6 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
     private SharedPreferences sharedPref;
 
     private int timeShift;
-
-    public static final String LOG_TAG = "weather-alarm-clock";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
