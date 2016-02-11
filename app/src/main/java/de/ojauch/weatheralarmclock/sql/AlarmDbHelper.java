@@ -88,14 +88,7 @@ public class AlarmDbHelper extends SQLiteOpenHelper implements BaseColumns {
 
     public void updateAlarmEntry(Alarm alarm) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.update(TABLE_NAME, getValues(alarm), "id=" + alarm.getId(), null);
-    }
-
-    public Cursor fetchAllAlarms() {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, COLUMNS, null, null, null, null, null);
-        cursor.moveToFirst();
-        return cursor;
+        db.update(TABLE_NAME, getValues(alarm), "_id=" + alarm.getId(), null);
     }
 
     public List<Alarm> getAlarmsFromDb() {
@@ -104,6 +97,7 @@ public class AlarmDbHelper extends SQLiteOpenHelper implements BaseColumns {
         Cursor cursor = db.query(TABLE_NAME, COLUMNS, null, null, null, null, null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
+            long id = cursor.getInt(0);
             String strTime = cursor.getString(1);
             int intEnabled = cursor.getInt(2);
             int intRain = cursor.getInt(3);
@@ -130,11 +124,18 @@ public class AlarmDbHelper extends SQLiteOpenHelper implements BaseColumns {
             else
                 alarm.setFrost(false);
 
+            alarm.setId(id);
+
             alarmList.add(alarm);
             cursor.moveToNext();
         }
         cursor.close();
 
         return alarmList;
+    }
+
+    public void remove(Alarm alarm) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + _ID + "=" + alarm.getId());
     }
 }

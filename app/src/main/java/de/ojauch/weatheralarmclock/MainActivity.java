@@ -41,7 +41,10 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         mDbHelper = new AlarmDbHelper(getApplicationContext());
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        update();
+        mAlarmList = mDbHelper.getAlarmsFromDb();
+        mAdapter = new AlarmListAdapter(getApplicationContext(), R.layout.alarm_row, mAlarmList);
+        mListView = (ListView) findViewById(R.id.alarmListView);
+        mListView.setAdapter(mAdapter);
 
         FloatingActionButton fab_add = (FloatingActionButton) findViewById(R.id.fab_add_alarm);
         fab_add.setOnClickListener(new View.OnClickListener() {
@@ -111,13 +114,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         alarm.setRain(true);
 
         mDbHelper.writeToDb(alarm);
-        update();
-    }
-
-    private void update() {
-        mAlarmList = mDbHelper.getAlarmsFromDb();
-        mAdapter = new AlarmListAdapter(getApplicationContext(), R.layout.alarm_row, mAlarmList);
-        mListView = (ListView) findViewById(R.id.alarmListView);
-        mListView.setAdapter(mAdapter);
+        mAdapter.add(alarm);
+        mAdapter.notifyDataSetChanged();
     }
 }

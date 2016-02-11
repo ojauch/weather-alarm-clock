@@ -9,6 +9,8 @@
     <string name="rain">Rain</string>
     <string name="frost">Frost</string>
 
+    <string name="button_delete">Delete</string>
+
     <string name="pref_city">Default city</string>
     <string name="pref_city_summary">Place where you live</string>
     <string name="pref_device_location">Device location</string>
