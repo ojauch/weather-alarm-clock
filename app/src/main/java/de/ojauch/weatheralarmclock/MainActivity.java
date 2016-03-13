@@ -7,14 +7,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -25,7 +27,8 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
     public static final String LOG_TAG = "weather-alarm-clock";
     private TimePicker tp;
     private CheckBox checkBoxRain;
-    private CheckBox checkBoxFreezing;
+    private CheckBox checkBoxFrost;
+    private TextView timeTextView;
 
     private SharedPreferences sharedPref;
 
@@ -40,17 +43,37 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        FloatingActionButton fab_add = (FloatingActionButton) findViewById(R.id.fab_add_alarm);
-        fab_add.setOnClickListener(new View.OnClickListener() {
+        Button changeTimeButton = (Button) findViewById(R.id.buttonChangeTime);
+        changeTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 TimePickerFragment tp = new TimePickerFragment();
                 tp.show(getFragmentManager(), "tp_alarm_fragment");
             }
         });
+        /*FloatingActionButton fab_add = (FloatingActionButton) findViewById(R.id.fab_add_alarm);
+        fab_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TimePickerFragment tp = new TimePickerFragment();
+                tp.show(getFragmentManager(), "tp_alarm_fragment");
+            }
+        });*/
 
-        //checkBoxRain = (CheckBox) findViewById(R.id.checkBoxRain);
-        //checkBoxFreezing = (CheckBox) findViewById(R.id.checkBoxFrost);
+        checkBoxRain = (CheckBox) findViewById(R.id.checkBoxRain);
+        checkBoxRain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                changeAlarm();
+            }
+        });
+        checkBoxFrost = (CheckBox) findViewById(R.id.checkBoxFrost);
+        checkBoxFrost.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                changeAlarm();
+            }
+        });
 
         // get time shift value
         try {
@@ -59,6 +82,26 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
             Log.d(LOG_TAG, "Error parsing time shift preference value");
             timeShift = 15;
         }
+
+        int hours = sharedPref.getInt(SettingsActivity.KEY_PREF_HOURS, 0);
+        int minutes = sharedPref.getInt(SettingsActivity.KEY_PREF_MINUTES, 0);
+
+        timeTextView = (TextView) findViewById(R.id.textTime);
+        timeTextView.setText(getTimeString(hours, minutes));
+    }
+
+    private String getTimeString(int hours, int minutes) {
+        String timeString = "";
+        if (hours < 10) {
+            timeString += "0";
+        }
+        timeString += String.valueOf(hours) + ":";
+        if (minutes < 10) {
+            timeString += "0";
+        }
+        timeString += String.valueOf(minutes);
+
+        return timeString;
     }
 
     @Override
@@ -90,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         int hour = tp.getCurrentHour();
         int minute = tp.getCurrentMinute();
         boolean rain = checkBoxRain.isChecked();
-        boolean freezing = checkBoxFreezing.isChecked();
+        boolean freezing = checkBoxFrost.isChecked();
 
         Calendar calendar = Calendar.getInstance();
 
@@ -127,15 +170,11 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         toast.show();
     }*/
 
-    @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Log.d(LOG_TAG, "time set to: " + hourOfDay + ":" + minute);
-        //boolean rain = checkBoxRain.isChecked();
-        //boolean freezing = checkBoxFreezing.isChecked();
-
-        // TODO: add user control to control conditions
-        boolean rain = true;
-        boolean frost = true;
+    private void changeAlarm() {
+        int hourOfDay = sharedPref.getInt(SettingsActivity.KEY_PREF_HOURS, 0);
+        int minute = sharedPref.getInt(SettingsActivity.KEY_PREF_MINUTES, 0);
+        boolean rain = checkBoxRain.isChecked();
+        boolean frost = checkBoxFrost.isChecked();
 
         Calendar calendar = Calendar.getInstance();
 
@@ -166,9 +205,21 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 
-        String notification = "alarm set: " + hourOfDay + ":" + minute;
+        String notification = "alarm set: " + getTimeString(hourOfDay, minute);
 
         Toast toast = Toast.makeText(getApplicationContext(), notification, Toast.LENGTH_LONG);
         toast.show();
+    }
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(SettingsActivity.KEY_PREF_HOURS, hourOfDay);
+        editor.putInt(SettingsActivity.KEY_PREF_MINUTES, minute);
+        editor.commit();
+        timeTextView.setText(getTimeString(hourOfDay, minute));
+
+        Log.d(LOG_TAG, "time set to: " + getTimeString(hourOfDay, minute));
+        changeAlarm();
     }
 }

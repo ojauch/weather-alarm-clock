@@ -8,8 +8,38 @@
     tools:context="de.ojauch.weatheralarmclock.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <ListView
-        android:id="@+id/alarmListView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/textTime"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:textAlignment="center"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rain"
+        android:id="@+id/checkBoxRain"
+        android:layout_below="@+id/textTime"
+        android:layout_alignParentStart="true"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Frost"
+        android:id="@+id/checkBoxFrost"
+        android:layout_below="@+id/textTime"
+        android:layout_alignParentEnd="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change time"
+        android:id="@+id/buttonChangeTime"
+        android:layout_below="@+id/checkBoxFrost"
+        android:layout_alignEnd="@+id/checkBoxFrost"/>
 </RelativeLayout>

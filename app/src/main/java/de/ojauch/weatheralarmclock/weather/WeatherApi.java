@@ -84,23 +84,8 @@ public class WeatherApi {
 
             String name = parser.getName();
             switch (name) {
-                case "city":
-                    current.setCity(readCity(parser));
-                    break;
                 case "temperature":
                     current.setTemperature(readTemperature(parser));
-                    break;
-                case "humidity":
-                    current.setHumidity(readHumidity(parser));
-                    break;
-                case "pressure":
-                    current.setPressure(readPressure(parser));
-                    break;
-                case "wind":
-                    current.setWind(readWind(parser));
-                    break;
-                case "clouds":
-                    current.setClouds(readClouds(parser));
                     break;
                 case "precipitation":
                     current.setPrecipitation(readPrecipitation(parser));
