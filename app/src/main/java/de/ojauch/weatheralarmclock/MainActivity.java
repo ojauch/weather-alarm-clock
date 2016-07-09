@@ -22,9 +22,10 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
+public class MainActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener
+{
 
-    public static final String LOG_TAG = "weather-alarm-clock";
+    public static final String LOG_TAG = "Weather-alarm-clock";
     private TimePicker tp;
     private CheckBox checkBoxRain;
     private CheckBox checkBoxFrost;
@@ -35,84 +36,91 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
     private int timeShift;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+    protected void onCreate( Bundle savedInstanceState )
+    {
+        super.onCreate( savedInstanceState );
+        setContentView( R.layout.activity_main );
+        Toolbar toolbar = (Toolbar) findViewById( R.id.toolbar );
+        setSupportActionBar( toolbar );
 
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPref = PreferenceManager.getDefaultSharedPreferences( this );
 
-        Button changeTimeButton = (Button) findViewById(R.id.buttonChangeTime);
-        changeTimeButton.setOnClickListener(new View.OnClickListener() {
+        Button changeTimeButton = (Button) findViewById( R.id.buttonChangeTime );
+        changeTimeButton.setOnClickListener( new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick( View view )
+            {
                 TimePickerFragment tp = new TimePickerFragment();
-                tp.show(getFragmentManager(), "tp_alarm_fragment");
+                tp.show( getFragmentManager(), "tp_alarm_fragment" );
             }
-        });
-        /*FloatingActionButton fab_add = (FloatingActionButton) findViewById(R.id.fab_add_alarm);
-        fab_add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TimePickerFragment tp = new TimePickerFragment();
-                tp.show(getFragmentManager(), "tp_alarm_fragment");
-            }
-        });*/
+        } );
 
-        checkBoxRain = (CheckBox) findViewById(R.id.checkBoxRain);
-        checkBoxRain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        checkBoxRain = (CheckBox) findViewById( R.id.checkBoxRain );
+        checkBoxRain.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener()
+        {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
+            {
                 changeAlarm();
             }
-        });
-        checkBoxFrost = (CheckBox) findViewById(R.id.checkBoxFrost);
-        checkBoxFrost.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        } );
+        checkBoxFrost = (CheckBox) findViewById( R.id.checkBoxFrost );
+        checkBoxFrost.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener()
+        {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onCheckedChanged( CompoundButton buttonView, boolean isChecked )
+            {
                 changeAlarm();
             }
-        });
+        } );
 
         // get time shift value
-        try {
-            timeShift = Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_TIME_SHIFT, "15"));
-        } catch (NumberFormatException e) {
-            Log.d(LOG_TAG, "Error parsing time shift preference value");
+        try
+        {
+            timeShift = Integer.parseInt( sharedPref.getString( SettingsActivity.KEY_PREF_TIME_SHIFT, "15" ) );
+        }
+        catch ( NumberFormatException e )
+        {
+            Log.d( LOG_TAG, "Error parsing time shift preference value" );
             timeShift = 15;
         }
 
-        int hours = sharedPref.getInt(SettingsActivity.KEY_PREF_HOURS, 0);
-        int minutes = sharedPref.getInt(SettingsActivity.KEY_PREF_MINUTES, 0);
+        int hours = sharedPref.getInt( SettingsActivity.KEY_PREF_HOURS, 0 );
+        int minutes = sharedPref.getInt( SettingsActivity.KEY_PREF_MINUTES, 0 );
 
-        timeTextView = (TextView) findViewById(R.id.textTime);
-        timeTextView.setText(getTimeString(hours, minutes));
+        timeTextView = (TextView) findViewById( R.id.textTime );
+        timeTextView.setText( getTimeString( hours, minutes ) );
     }
 
-    private String getTimeString(int hours, int minutes) {
+    private String getTimeString( int hours, int minutes )
+    {
         String timeString = "";
-        if (hours < 10) {
+        if ( hours < 10 )
+        {
             timeString += "0";
         }
-        timeString += String.valueOf(hours) + ":";
-        if (minutes < 10) {
+        timeString += String.valueOf( hours ) + ":";
+        if ( minutes < 10 )
+        {
             timeString += "0";
         }
-        timeString += String.valueOf(minutes);
+        timeString += String.valueOf( minutes );
 
         return timeString;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu( Menu menu )
+    {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate( R.menu.menu_main, menu );
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
         // Handle action bar item clicks here. The action bar will        //noinspection SimplifiableIfStatement
 
         // automatically handle clicks on the Home/Up button, so long
@@ -120,13 +128,14 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-            startActivity(settingsIntent);
+        if ( id == R.id.action_settings )
+        {
+            Intent settingsIntent = new Intent( getApplicationContext(), SettingsActivity.class );
+            startActivity( settingsIntent );
             return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected( item );
     }
 
     /*public void setAlarm(View v) {
@@ -170,56 +179,62 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         toast.show();
     }*/
 
-    private void changeAlarm() {
-        int hourOfDay = sharedPref.getInt(SettingsActivity.KEY_PREF_HOURS, 0);
-        int minute = sharedPref.getInt(SettingsActivity.KEY_PREF_MINUTES, 0);
+    private void changeAlarm()
+    {
+        int hourOfDay = sharedPref.getInt( SettingsActivity.KEY_PREF_HOURS, 0 );
+        int minute = sharedPref.getInt( SettingsActivity.KEY_PREF_MINUTES, 0 );
         boolean rain = checkBoxRain.isChecked();
         boolean frost = checkBoxFrost.isChecked();
 
         Calendar calendar = Calendar.getInstance();
 
-        int currentDay = calendar.get(Calendar.DAY_OF_YEAR);
+        int currentDay = calendar.get( Calendar.DAY_OF_YEAR );
 
-        if (calendar.get(Calendar.HOUR_OF_DAY) >= hourOfDay - (timeShift / 60) &&
-                calendar.get(Calendar.MINUTE) > minute) {
-            Log.d(LOG_TAG, "happens on the next day");
-            if (currentDay < 365) {
-                calendar.set(Calendar.DAY_OF_YEAR, currentDay + 1);
-            } else {
-                calendar.set(Calendar.DAY_OF_YEAR, 1);
+        if ( calendar.get( Calendar.HOUR_OF_DAY ) >= hourOfDay - (timeShift / 60) &&
+                calendar.get( Calendar.MINUTE ) > minute )
+        {
+            Log.d( LOG_TAG, "happens on the next day" );
+            if ( currentDay < 365 )
+            {
+                calendar.set( Calendar.DAY_OF_YEAR, currentDay + 1 );
+            }
+            else
+            {
+                calendar.set( Calendar.DAY_OF_YEAR, 1 );
             }
         }
-        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay - (timeShift / 60));
-        calendar.set(Calendar.MINUTE, minute - (timeShift % 60) - 1);
+        calendar.set( Calendar.HOUR_OF_DAY, hourOfDay - (timeShift / 60) );
+        calendar.set( Calendar.MINUTE, minute - (timeShift % 60) - 1 );
 
-        String city = sharedPref.getString(SettingsActivity.KEY_PREF_CITY, "");
-        Log.d(LOG_TAG, city);
+        String city = sharedPref.getString( SettingsActivity.KEY_PREF_CITY, "" );
+        Log.d( LOG_TAG, city );
 
-        Intent i = new Intent(MainActivity.this, AlarmActivity.class);
-        i.putExtra(AlarmActivity.EXTRA_CITY, city);
-        i.putExtra(AlarmActivity.EXTRA_RAIN, rain);
-        i.putExtra(AlarmActivity.EXTRA_FREEZING, frost);
-        i.putExtra(AlarmActivity.EXTRA_TIME_SHIFT, timeShift);
-        PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, i, PendingIntent.FLAG_ONE_SHOT);
+        Intent i = new Intent( MainActivity.this, AlarmActivity.class );
+        i.putExtra( AlarmActivity.EXTRA_CITY, city );
+        i.putExtra( AlarmActivity.EXTRA_RAIN, rain );
+        i.putExtra( AlarmActivity.EXTRA_FREEZING, frost );
+        i.putExtra( AlarmActivity.EXTRA_TIME_SHIFT, timeShift );
+        PendingIntent pendingIntent = PendingIntent.getActivity( MainActivity.this, 0, i, PendingIntent.FLAG_ONE_SHOT );
 
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        AlarmManager alarmManager = (AlarmManager) getSystemService( ALARM_SERVICE );
+        alarmManager.setExact( AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent );
 
-        String notification = "alarm set: " + getTimeString(hourOfDay, minute);
+        String notification = "alarm set: " + getTimeString( hourOfDay, minute );
 
-        Toast toast = Toast.makeText(getApplicationContext(), notification, Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText( getApplicationContext(), notification, Toast.LENGTH_LONG );
         toast.show();
     }
 
     @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+    public void onTimeSet( TimePicker view, int hourOfDay, int minute )
+    {
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt(SettingsActivity.KEY_PREF_HOURS, hourOfDay);
-        editor.putInt(SettingsActivity.KEY_PREF_MINUTES, minute);
+        editor.putInt( SettingsActivity.KEY_PREF_HOURS, hourOfDay );
+        editor.putInt( SettingsActivity.KEY_PREF_MINUTES, minute );
         editor.commit();
-        timeTextView.setText(getTimeString(hourOfDay, minute));
+        timeTextView.setText( getTimeString( hourOfDay, minute ) );
 
-        Log.d(LOG_TAG, "time set to: " + getTimeString(hourOfDay, minute));
+        Log.d( LOG_TAG, "time set to: " + getTimeString( hourOfDay, minute ) );
         changeAlarm();
     }
 }

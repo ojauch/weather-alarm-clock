@@ -1,7 +1,7 @@
 package de.ojauch.weatheralarmclock.weather;
 
 /**
- * Class to represent weather data from OpenWeatherMap
+ * Class to represent Weather data from OpenWeatherMap
  * @author Oskar Jauch
  */
 public class Weather {

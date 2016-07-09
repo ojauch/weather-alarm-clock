@@ -45,9 +45,7 @@ public class AlarmActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(String... cities) {
             try {
-                if (rain && !weatherApi.isRaining(cities[0]))
-                    return false;
-                if (freezing && !weatherApi.isFrost(cities[0]))
+                if ((rain && !weatherApi.isRaining(cities[0])) && (freezing && !weatherApi.isFrost(cities[0])))
                     return false;
                 return true;
             } catch (IOException e) {

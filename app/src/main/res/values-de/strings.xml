@@ -11,4 +11,8 @@
     <string name="rain">Regen</string>
     <string name="set_alarm">Wecker hinzufügen</string>
     <string name="title_activity_settings">Einstellungen</string>
+    <string name="frost">Frost</string>
+    <string name="pref_time_shift">Zeitdifferenz</string>
+    <string name="pref_time_shift_summary">Wie viele Minuten wollen Sie eher aufwachen</string>
+    <string name="change_time">Zeit ändern</string>
 </resources>

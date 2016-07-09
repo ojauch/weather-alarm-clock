@@ -13,12 +13,12 @@ import java.net.URL;
 import java.util.Date;
 
 /**
- * Gets the current weather from Open Weather Map
+ * Gets the current Weather from Open Weather Map
  *
  * @author Oskar Jauch
  */
 public class WeatherApi {
-    private static final String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?q=";
+    private static final String BASE_URL = "http://api.openweathermap.org/data/2.5/Weather?q=";
     private static final String API_KEY = "24d7fb2485706e8b6fd1a7d53cdb6589";
     private static final String FORMAT = "&mode=xml";
     private static final String UNITS = "&units=metric";
